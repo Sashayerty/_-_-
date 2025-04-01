@@ -53,462 +53,627 @@ __имя__ = "__главный__"
 
 ШАБЛОН = """
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<style>
-body {
-    background: #8B4513 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234B3621"/><circle cx="25" cy="25" r="10" fill="%238B4513"/><circle cx="75" cy="25" r="10" fill="%238B4513"/><circle cx="25" cy="75" r="10" fill="%238B4513"/><circle cx="75" cy="75" r="10" fill="%238B4513"/></svg>');
-    color: #FFF;
-    font-family: 'Times New Roman', serif;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор абсурдных бизнес-идей</title>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --secondary: #A0522D;
+            --accent: #6B8E23;
+            --text-light: #FFF8DC;
+            --text-dark: #333;
+            --error: #8B0000;
+            --success: #556B2F;
+            --highlight: #FFD700;
+        }
 
-.кнопкоКонтейнер {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-.убегающаяКнопка {
-    position: absolute;
-    padding: 20px 40px;
-    font-size: 24px;
-    cursor: pointer;
-    border: 3px solid #A0522D;
-    border-radius: 10px;
-    transition: all 0.3s;
-    box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
-    text-shadow: 1px 1px 2px #000;
-}
+        body {
+            background: var(--primary) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234B3621"/><circle cx="25" cy="25" r="10" fill="%238B4513"/><circle cx="75" cy="25" r="10" fill="%238B4513"/><circle cx="25" cy="75" r="10" fill="%238B4513"/><circle cx="75" cy="75" r="10" fill="%238B4513"/></svg>');
+            color: var(--text-light);
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-#кнопкаВхода {
-    background: #556B2F;
-    color: #FFF8DC;
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-#кнопкаРегистрации {
-    background: #6B8E23;
-    color: #FFF8DC;
-}
+        h1 {
+            text-align: center;
+            margin: 20px auto;
+            font-size: 2.5rem;
+            color: var(--text-light);
+            text-shadow: 2px 2px 4px #000;
+            padding: 20px;
+            background: rgba(139, 69, 19, 0.7);
+            border-radius: 10px;
+            width: fit-content;
+            max-width: 90%;
+        }
 
-h1 {
-    text-align: center;
-    margin-top: 30px;
-    font-size: 36px;
-    color: #FFF8DC;
-    text-shadow: 2px 2px 4px #000;
-    padding: 20px;
-    background: rgba(139, 69, 19, 0.7);
-    border-radius: 10px;
-    margin: 20px auto;
-    width: fit-content;
-}
+        .button-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-.модальноеОкно {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #A0522D;
-    padding: 30px;
-    border: 5px solid #8B4513;
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.7);
-    z-index: 1000;
-    width: 300px;
-}
+        .runaway-button {
+            position: absolute;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: 3px solid var(--secondary);
+            border-radius: 10px;
+            transition: all 0.3s;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px #000;
+            z-index: 10;
+        }
 
-.модальноеОкно h2 {
-    color: #FFF8DC;
-    text-align: center;
-    margin-bottom: 20px;
-}
+        #loginButton {
+            background: var(--success);
+            color: var(--text-light);
+        }
 
-.формаГруппа {
-    margin-bottom: 20px;
-}
+        #registerButton {
+            background: var(--accent);
+            color: var(--text-light);
+        }
 
-.формаГруппа label {
-    display: block;
-    margin-bottom: 5px;
-    color: #FFF8DC;
-}
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--secondary);
+            padding: 25px;
+            border: 5px solid var(--primary);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+        }
 
-.формаГруппа input {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #8B4513;
-    border-radius: 5px;
-    background: #FFF8DC;
-}
+        .modal h2 {
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
 
-.кнопкаОтправки {
-    background: #6B8E23;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 18px;
-}
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-.кнопкаОтправки:hover {
-    background: #556B2F;
-}
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
 
-.уведомление-контейнер {
-    position: fixed;
-    bottom: 20px;
-    left: 0;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 10000;
-    pointer-events: none;
-}
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--primary);
+            border-radius: 5px;
+            background: var(--text-light);
+            font-size: 1rem;
+            font-family: inherit;
+        }
 
-.уведомление {
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.3s ease;
-    max-width: 80%;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
+        .submit-button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
 
-.уведомление.show {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.уведомление.success {
-    background: rgba(46, 125, 50, 0.9);
-}
-
-.уведомление.error {
-    background: rgba(198, 40, 40, 0.9);
-}
-
-.прогресс-бар {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.5);
-    width: 100%;
-    transform-origin: left;
-    animation: progress 5s linear forwards;
-}
-
-@keyframes progress {
-    0% { transform: scaleX(1); }
-    100% { transform: scaleX(0); }
-}
-
-.меню-идеи {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #A0522D;
-    padding: 30px;
-    border: 5px solid #8B4513;
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.7);
-    z-index: 1001;
-    width: 500px;
-    max-width: 90%;
-}
-
-.меню-идеи h2 {
-    color: #FFF8DC;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.меню-идеи textarea {
-    width: 100%;
-    height: 150px;
-    padding: 10px;
-    border: 2px solid #8B4513;
-    border-radius: 5px;
-    background: #FFF8DC;
-    margin-bottom: 20px;
-    resize: none;
-}
+        .submit-button:hover {
+            background: var(--success);
+            transform: translateY(-2px);
+        }
 
 
-.меню-идеи .результат {
-    margin-top: 20px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-    color: white;
-    white-space: pre-line;
-}
+        .idea-menu {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--secondary);
+            padding: 30px;
+            border: 5px solid var(--primary);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            z-index: 1001;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
 
-#кнопкаВыхода {
-    background: #8B0000 !important;
-    margin-top: 20px;
-}
-</style>
+        .idea-menu h2 {
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2rem;
+        }
+
+        .idea-textarea {
+            width: 100%;
+            height: 180px;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 5px;
+            background: var(--text-light);
+            margin-bottom: 25px;
+            resize: none;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            color: white;
+        }
+
+        .result-block {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .result-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .result-title {
+            font-weight: bold;
+            color: var(--highlight);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-text {
+            white-space: pre-line;
+            text-align: justify;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        #logoutButton {
+            background: var(--error) !important;
+            margin-top: 25px;
+        }
+
+        .notification-container {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 18px 30px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            max-width: 90%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            font-size: 1.1rem;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.success {
+            background: rgba(46, 125, 50, 0.95);
+        }
+
+        .notification.error {
+            background: rgba(198, 40, 40, 0.95);
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            width: 100%;
+            transform-origin: left;
+            animation: progress 5s linear forwards;
+        }
+
+        @keyframes progress {
+            0% { transform: scaleX(1); }
+            100% { transform: scaleX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-block {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .result-block:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .result-block:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+                padding: 15px;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .idea-menu {
+                padding: 20px;
+            }
+
+            .idea-textarea {
+                height: 150px;
+            }
+
+            .runaway-button {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+
+            .result-title {
+                font-size: 1.1rem;
+            }
+
+            .result-text {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .modal h2, .idea-menu h2 {
+                font-size: 1.4rem;
+            }
+
+            .submit-button {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+
+            .idea-textarea {
+                height: 120px;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>ПОЙМАЙТЕ КНОПКУ</h1>
-<div class="уведомление-контейнер" id="уведомление-контейнер"></div>
+    <div class="container">
+        <h1>ГЕНЕРАТОР АБСУРДНЫХ БИЗНЕС-ИДЕЙ</h1>
+        <div class="notification-container" id="notificationContainer"></div>
 
-<div class="кнопкоКонтейнер">
-    <button id="кнопкаВхода" class="убегающаяКнопка">ВХОД</button>
-    <button id="кнопкаРегистрации" class="убегающаяКнопка">РЕГИСТРАЦИЯ</button>
-</div>
-
-<div id="менюИдеи" class="меню-идеи">
-    <h2>Введите вашу бизнес-идею</h2>
-    <textarea id="полеИдеи" placeholder="Опишите вашу бизнес-идею..."></textarea>
-    <button id="кнопкаПолучитьОтвет" class="кнопкаОтправки">Получить ответ</button>
-    <div class="результат" id="результатИдеи"></div>
-    <button id="кнопкаВыхода" class="кнопкаОтправки">Выйти</button>
-</div>
-
-<div id="модальноеВход" class="модальноеОкно">
-    <h2>Вход в систему</h2>
-    <form id="формаВхода" method="POST" action="/главная?вид=вход">
-        <div class="формаГруппа">
-            <label for="вход_никнейм">Никнейм:</label>
-            <input type="text" id="вход_никнейм" name="никнейм" required>
+        <div class="button-container">
+            <button id="loginButton" class="runaway-button">ВХОД</button>
+            <button id="registerButton" class="runaway-button">РЕГИСТРАЦИЯ</button>
         </div>
-        <div class="формаГруппа">
-            <label for="вход_пароль">Пароль:</label>
-            <input type="password" id="вход_пароль" name="пароль" required>
+
+        <div id="ideaMenu" class="idea-menu">
+            <h2>Ваш источник вдохновения</h2>
+            <textarea id="ideaField" class="idea-textarea" placeholder="Опишите тему для вашей гениальной (или безумной) бизнес-идеи..."></textarea>
+            <button id="getIdeaButton" class="submit-button">Генерировать идею</button>
+
+            <div class="result-container" id="ideaResult">
+                <!-- Результат будет вставлен сюда -->
+            </div>
+
+            <button id="logoutButton" class="submit-button">Выйти</button>
         </div>
-        <button type="submit" class="кнопкаОтправки">Войти</button>
-    </form>
-</div>
 
-<div id="модальноеРегистрация" class="модальноеОкно">
-    <h2>Регистрация</h2>
-    <form id="формаРегистрации" method="POST" action="/главная?вид=регистрация">
-        <div class="формаГруппа">
-            <label for="регистрация_никнейм">Никнейм (2-15 символов):</label>
-            <input type="text" id="регистрация_никнейм" name="никнейм" required minlength="2" maxlength="15">
+        <div id="loginModal" class="modal">
+            <h2>Вход в систему</h2>
+            <form id="loginForm" method="POST" action="/главная?вид=вход">
+                <div class="form-group">
+                    <label for="loginUsername">Никнейм:</label>
+                    <input type="text" id="loginUsername" name="никнейм" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль:</label>
+                    <input type="password" id="loginPassword" name="пароль" required>
+                </div>
+                <button type="submit" class="submit-button">Войти</button>
+            </form>
         </div>
-        <div class="формаГруппа">
-            <label for="регистрация_пароль">Пароль (2-15 символов):</label>
-            <input type="password" id="регистрация_пароль" name="пароль" required minlength="2" maxlength="15">
+
+        <div id="registerModal" class="modal">
+            <h2>Регистрация</h2>
+            <form id="registerForm" method="POST" action="/главная?вид=регистрация">
+                <div class="form-group">
+                    <label for="registerUsername">Никнейм (2-15 символов):</label>
+                    <input type="text" id="registerUsername" name="никнейм" required minlength="2" maxlength="15">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Пароль (2-15 символов):</label>
+                    <input type="password" id="registerPassword" name="пароль" required minlength="2" maxlength="15">
+                </div>
+                <button type="submit" class="submit-button">Зарегистрироваться</button>
+            </form>
         </div>
-        <button type="submit" class="кнопкаОтправки">Зарегистрироваться</button>
-    </form>
-</div>
+    </div>
 
-<script>
-const всеКнопки = document.querySelectorAll('.убегающаяКнопка');
-let кнопкаПоймана = false;
-let скоростьПеремещения = 3000;
-const модальноеВход = document.getElementById('модальноеВход');
-const модальноеРегистрация = document.getElementById('модальноеРегистрация');
-
-function показатьУведомление(текст, тип = 'info') {
-    const контейнер = document.getElementById('уведомление-контейнер');
-    const уведомление = document.createElement('div');
-    уведомление.className = `уведомление ${тип}`;
-    уведомление.innerHTML = `
-        ${текст}
-        <div class="прогресс-бар"></div>
-    `;
-
-    контейнер.appendChild(уведомление);
-
-    setTimeout(() => {
-        уведомление.classList.add('show');
-    }, 10);
-
-    setTimeout(() => {
-        уведомление.classList.remove('show');
-        setTimeout(() => {
-            контейнер.removeChild(уведомление);
-        }, 300);
-    }, 5000);
-}
-
-function перемешатьКнопки() {
-    if(кнопкаПоймана) return;
-
-    всеКнопки.forEach(кнопка => {
-        const x = Math.random() * (window.innerWidth - 200);
-        const y = Math.random() * (window.innerHeight - 100);
-        кнопка.style.left = `${x}px`;
-        кнопка.style.top = `${y}px`;
-        кнопка.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
-    });
-
-    setTimeout(перемешатьКнопки, скоростьПеремещения);
-}
+    <script>
+        const allButtons = document.querySelectorAll('.runaway-button');
+        let buttonCaught = false;
+        let moveSpeed = 3000;
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        const ideaMenu = document.getElementById('ideaMenu');
 
 
-function отправьИдею() {
-    const идея = document.getElementById('полеИдеи').value;
-    if (!идея.trim()) {
-        показатьУведомление('Введите идею!', 'error');
-        return;
-    }
-    fetch(`/дай-мне-идею-проекта?идея=${encodeURIComponent(идея)}`)
-        .then(response => response.json())
-        .then(data => {
-            const результат = document.getElementById('результатИдеи');
-            результат.innerHTML = `
-                <strong>Идея проекта:</strong> ${data.идея_проекта}<br><br>
-                <strong>Описание:</strong> ${data.описание_проекта}<br><br>
-                <strong>Убийственная фишка:</strong> ${data.убийственная_фишка_проекта}
+        function showNotification(text, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                ${text}
+                <div class="progress-bar"></div>
             `;
-        })
-        .catch(error => {
-            показатьУведомление('Ошибка при получении ответа', 'error');
-            console.error('Ошибка:', error);
-        });
-}
 
-всеКнопки.forEach(кнопка => {
-    кнопка.addEventListener('mouseover', () => {
-        if(!кнопкаПоймана) {
-            const x = Math.random() * (window.innerWidth - 200);
-            const y = Math.random() * (window.innerHeight - 100);
-            кнопка.style.transition = 'all 1s ease';
-            кнопка.style.left = `${x}px`;
-            кнопка.style.top = `${y}px`;
+            container.appendChild(notification);
 
             setTimeout(() => {
-                кнопка.style.transition = 'all 0.3s ease';
-            }, 1000);
+                notification.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    container.removeChild(notification);
+                }, 300);
+            }, 5000);
         }
-    });
 
-    кнопка.addEventListener('click', (e) => {
-        e.stopPropagation();
-        кнопкаПоймана = true;
-        кнопка.style.border = '3px solid #FFF';
-        кнопка.style.boxShadow = '0 0 20px #FFF';
-        кнопка.textContent = 'УСПЕХ!';
-        кнопка.style.transform = 'scale(1.2) rotate(0deg)';
-        кнопка.style.transition = 'all 0.5s ease';
+        function moveButtons() {
+            if(buttonCaught) return;
 
-        setTimeout(() => {
-            if(кнопка.id === 'кнопкаРегистрации') {
-                модальноеРегистрация.style.display = 'block';
-            } else {
-                модальноеВход.style.display = 'block';
+            allButtons.forEach(button => {
+                const x = Math.random() * (window.innerWidth - 200);
+                const y = Math.random() * (window.innerHeight - 100);
+                button.style.left = `${x}px`;
+                button.style.top = `${y}px`;
+                button.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
+            });
+
+            setTimeout(moveButtons, moveSpeed);
+        }
+
+        function submitIdea() {
+            const idea = document.getElementById('ideaField').value;
+            if (!idea.trim()) {
+                showNotification('Введите идею!', 'error');
+                return;
             }
-        }, 500);
-    });
-});
 
-window.addEventListener('click', (e) => {
-    if(e.target === модальноеВход || e.target === модальноеРегистрация) {
-        модальноеВход.style.display = 'none';
-        модальноеРегистрация.style.display = 'none';
-        кнопкаПоймана = false;
-        document.getElementById('кнопкаВхода').textContent = 'ВХОД';
-        document.getElementById('кнопкаРегистрации').textContent = 'РЕГИСТРАЦИЯ';
-    }
-});
+            const container = document.getElementById('ideaResult');
+            container.innerHTML = `
+                <div class="result-block">
+                    <div class="result-title">⏳ Генерация идеи...</div>
+                    <div class="result-text">Мы создаем для вас уникальную бизнес-идею. Подождите немного!</div>
+                </div>
+            `;
 
-document.getElementById('формаРегистрации').addEventListener('submit', function(e) {
-    const никнейм = document.getElementById('регистрация_никнейм').value;
-    const пароль = document.getElementById('регистрация_пароль').value;
+            fetch(`/дай-мне-идею-проекта?идея=${encodeURIComponent(idea)}`)
+                .then(response => response.json())
+                .then(data => {
+                    container.innerHTML = `
+                        <div class="result-block">
+                            <div class="result-title">💡 Идея проекта</div>
+                            <div class="result-text">${data.идея_проекта}</div>
+                        </div>
+                        <div class="result-block">
+                            <div class="result-title">📝 Описание</div>
+                            <div class="result-text">${data.описание_проекта}</div>
+                        </div>
+                        <div class="result-block">
+                            <div class="result-title">🔥 Убийственная фишка</div>
+                            <div class="result-text">${data.убийственная_фишка_проекта}</div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    container.innerHTML = '';
+                    showNotification('Ошибка при получении ответа', 'error');
+                    console.error('Ошибка:', error);
+                });
+        }
 
-    if(никнейм.length < 2 || никнейм.length > 15) {
-        e.preventDefault();
-        показатьУведомление('Никнейм должен быть от 2 до 15 символов!', 'error');
-        return;
-    }
+        allButtons.forEach(button => {
+            button.addEventListener('mouseover', () => {
+                if(!buttonCaught) {
+                    const x = Math.random() * (window.innerWidth - 200);
+                    const y = Math.random() * (window.innerHeight - 100);
+                    button.style.transition = 'all 1s ease';
+                    button.style.left = `${x}px`;
+                    button.style.top = `${y}px`;
 
-    if(пароль.length < 2 || пароль.length > 15) {
-        e.preventDefault();
-        показатьУведомление('Пароль должен быть от 2 до 15 символов!', 'error');
-        return;
-    }
-});
+                    setTimeout(() => {
+                        button.style.transition = 'all 0.3s ease';
+                    }, 1000);
+                }
+            });
 
-document.getElementById('кнопкаПолучитьОтвет').addEventListener('click', отправьИдею);
 
-document.getElementById('кнопкаВыхода').addEventListener('click', function() {
-    fetch('/уйди-нечисть')
-        .then(response => {
-            if(response.ok) {
-                window.location.href = '/главная';
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                buttonCaught = true;
+                button.style.border = '3px solid #FFF';
+                button.style.boxShadow = '0 0 20px #FFF';
+                button.textContent = 'УСПЕХ!';
+                button.style.transform = 'scale(1.2) rotate(0deg)';
+                button.style.transition = 'all 0.5s ease';
+
+                setTimeout(() => {
+                    if(button.id === 'registerButton') {
+                        registerModal.style.display = 'block';
+                    } else {
+                        loginModal.style.display = 'block';
+                    }
+                }, 500);
+            });
+        });
+
+        window.addEventListener('click', (e) => {
+            if(e.target === loginModal || e.target === registerModal) {
+                loginModal.style.display = 'none';
+                registerModal.style.display = 'none';
+                buttonCaught = false;
+                document.getElementById('loginButton').textContent = 'ВХОД';
+                document.getElementById('registerButton').textContent = 'РЕГИСТРАЦИЯ';
             }
         });
-});
 
-document.getElementById('формаВхода').addEventListener('submit', function(e) {
-    e.preventDefault();
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
 
-    const никнейм = document.getElementById('вход_никнейм').value;
-    const пароль = document.getElementById('вход_пароль').value;
+            if(username.length < 2 || username.length > 15) {
+                e.preventDefault();
+                showNotification('Никнейм должен быть от 2 до 15 символов!', 'error');
+                return;
+            }
 
-    if(!никнейм || !пароль) {
-        показатьУведомление('Заполните все поля!', 'error');
-        return;
-    }
+            if(password.length < 2 || password.length > 15) {
+                e.preventDefault();
+                showNotification('Пароль должен быть от 2 до 15 символов!', 'error');
+                return;
+            }
+        });
+
+        document.getElementById('getIdeaButton').addEventListener('click', submitIdea);
+
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            fetch('/уйди-нечисть')
+                .then(response => {
+                    if(response.ok) {
+                        window.location.href = '/главная';
+                    }
+                });
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if(!username || !password) {
+                showNotification('Заполните все поля!', 'error');
+                return;
+            }
+
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `никнейм=${encodeURIComponent(username)}&пароль=${encodeURIComponent(password)}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                if(data === 'Ошибка входа!') {
+                    showNotification('Неверный логин или пароль', 'error');
+                } else {
+                    window.location.href = '/главная?сообщение=Вход+выполнен+успешно&тип=success';
+                }
+            })
+            .catch(error => {
+                showNotification('Ошибка при входе', 'error');
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const message = urlParams.get('сообщение');
+            const type = urlParams.get('тип');
+
+            if(message && type) {
+                showNotification(decodeURIComponent(message), type);
 
 
-    fetch(this.action, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `никнейм=${encodeURIComponent(никнейм)}&пароль=${encodeURIComponent(пароль)}`
-    })
-    .then(response => response.text())
-    .then(data => {
-        if(data === 'Ошибка входа!') {
-            показатьУведомление('Неверный логин или пароль', 'error');
-        } else {
-            window.location.href = '/главная?сообщение=Вход+выполнен+успешно&тип=success';
-        }
-    })
-    .catch(error => {
-        показатьУведомление('Ошибка при входе', 'error');
-    });
-});
+                if (message.includes('успешн') || message.includes('Вход+выполнен')) {
+                    ideaMenu.style.display = 'block';
+                    document.getElementById('loginButton').style.display = 'none';
+                    document.getElementById('registerButton').style.display = 'none';
+                    buttonCaught = true;
+                }
+            }
+        });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const сообщение = urlParams.get('сообщение');
-    const тип = urlParams.get('тип');
+        allButtons[0].style.left = '30%';
+        allButtons[0].style.top = '40%';
+        allButtons[1].style.left = '60%';
+        allButtons[1].style.top = '40%';
 
-    if(сообщение && тип) {
-        показатьУведомление(decodeURIComponent(сообщение), тип);
-
-        if (сообщение.includes('успешн') || сообщение.includes('Вход+выполнен')) {
-            document.getElementById('менюИдеи').style.display = 'block';
-            document.getElementById('кнопкаВхода').style.display = 'none';
-            document.getElementById('кнопкаРегистрации').style.display = 'none';
-            кнопкаПоймана = true;
-        }
-    }
-});
-
-всеКнопки[0].style.left = '30%';
-всеКнопки[0].style.top = '40%';
-всеКнопки[1].style.left = '60%';
-всеКнопки[1].style.top = '40%';
-
-перемешатьКнопки();
-</script>
+        moveButtons();
+    </script>
 </body>
 </html>
 """
