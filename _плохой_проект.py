@@ -50,6 +50,7 @@ __имя__ = "__главный__"
 )
 логин_менеджер = МенеджерВходов()
 логин_менеджер.init_app(проект)
+
 ШАБЛОН = """
 <!DOCTYPE html>
 <html>
@@ -216,6 +217,51 @@ h1 {
     0% { transform: scaleX(1); }
     100% { transform: scaleX(0); }
 }
+
+.меню-идеи {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #A0522D;
+    padding: 30px;
+    border: 5px solid #8B4513;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    z-index: 1001;
+    width: 500px;
+    max-width: 90%;
+}
+
+.меню-идеи h2 {
+    color: #FFF8DC;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.меню-идеи textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    border: 2px solid #8B4513;
+    border-radius: 5px;
+    background: #FFF8DC;
+    margin-bottom: 20px;
+    resize: none;
+}
+
+
+
+
+.меню-идеи .результат {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: white;
+    white-space: pre-line;
+}
 </style>
 </head>
 <body>
@@ -227,6 +273,12 @@ h1 {
     <button id="кнопкаРегистрации" class="убегающаяКнопка">РЕГИСТРАЦИЯ</button>
 </div>
 
+<div id="менюИдеи" class="меню-идеи">
+    <h2>Введите вашу бизнес-идею</h2>
+    <textarea id="полеИдеи" placeholder="Опишите вашу бизнес-идею..."></textarea>
+    <button id="кнопкаПолучитьОтвет" class="кнопкаОтправки">Получить ответ</button>
+    <div class="результат" id="результатИдеи"></div>
+</div>
 
 <div id="модальноеВход" class="модальноеОкно">
     <h2>Вход в систему</h2>
@@ -302,6 +354,28 @@ function перемешатьКнопки() {
     setTimeout(перемешатьКнопки, скоростьПеремещения);
 }
 
+function отправьИдею() {
+    const идея = document.getElementById('полеИдеи').value;
+    if (!идея.trim()) {
+        показатьУведомление('Введите идею!', 'error');
+        return;
+    }
+    fetch(`/дай-мне-идею-проекта?идея=${encodeURIComponent(идея)}`)
+        .then(response => response.json())
+        .then(data => {
+            const результат = document.getElementById('результатИдеи');
+            результат.innerHTML = `
+                <strong>Идея проекта:</strong> ${data.идея_проекта}<br><br>
+                <strong>Описание:</strong> ${data.описание_проекта}<br><br>
+                <strong>Убийственная фишка:</strong> ${data.убийственная_фишка_проекта}
+            `;
+        })
+        .catch(error => {
+            показатьУведомление('Ошибка при получении ответа', 'error');
+            console.error('Ошибка:', error);
+        });
+}
+
 всеКнопки.forEach(кнопка => {
     кнопка.addEventListener('mouseover', () => {
         if(!кнопкаПоймана) {
@@ -335,7 +409,6 @@ function перемешатьКнопки() {
         }, 500);
     });
 });
-
 
 window.addEventListener('click', (e) => {
     if(e.target === модальноеВход || e.target === модальноеРегистрация) {
@@ -374,6 +447,8 @@ document.getElementById('формаРегистрации').addEventListener('su
     }
 });
 
+document.getElementById('кнопкаПолучитьОтвет').addEventListener('click', отправьИдею);
+
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const сообщение = urlParams.get('сообщение');
@@ -381,6 +456,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if(сообщение && тип) {
         показатьУведомление(decodeURIComponent(сообщение), тип);
+
+        if (сообщение.includes('Вход+выполнен') || сообщение.includes('успешн')) {
+            document.getElementById('менюИдеи').style.display = 'block';
+            document.getElementById('кнопкаВхода').style.display = 'none';
+            document.getElementById('кнопкаРегистрации').style.display = 'none';
+        }
     }
 });
 

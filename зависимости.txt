@@ -1,4 +1,6 @@
 flask
+flask-login
+sqlalchemy
 langchain-mistralai
 pydantic
 python-dotenv
