@@ -252,8 +252,6 @@ h1 {
 }
 
 
-
-
 .меню-идеи .результат {
     margin-top: 20px;
     padding: 15px;
@@ -261,6 +259,11 @@ h1 {
     border-radius: 5px;
     color: white;
     white-space: pre-line;
+}
+
+#кнопкаВыхода {
+    background: #8B0000 !important;
+    margin-top: 20px;
 }
 </style>
 </head>
@@ -278,6 +281,7 @@ h1 {
     <textarea id="полеИдеи" placeholder="Опишите вашу бизнес-идею..."></textarea>
     <button id="кнопкаПолучитьОтвет" class="кнопкаОтправки">Получить ответ</button>
     <div class="результат" id="результатИдеи"></div>
+    <button id="кнопкаВыхода" class="кнопкаОтправки">Выйти</button>
 </div>
 
 <div id="модальноеВход" class="модальноеОкно">
@@ -354,6 +358,7 @@ function перемешатьКнопки() {
     setTimeout(перемешатьКнопки, скоростьПеремещения);
 }
 
+
 function отправьИдею() {
     const идея = document.getElementById('полеИдеи').value;
     if (!идея.trim()) {
@@ -420,16 +425,6 @@ window.addEventListener('click', (e) => {
     }
 });
 
-document.getElementById('формаВхода').addEventListener('submit', function(e) {
-    const никнейм = document.getElementById('вход_никнейм').value;
-    const пароль = document.getElementById('вход_пароль').value;
-
-    if(!никнейм || !пароль) {
-        e.preventDefault();
-        показатьУведомление('Заполните все поля!', 'error');
-    }
-});
-
 document.getElementById('формаРегистрации').addEventListener('submit', function(e) {
     const никнейм = document.getElementById('регистрация_никнейм').value;
     const пароль = document.getElementById('регистрация_пароль').value;
@@ -449,6 +444,47 @@ document.getElementById('формаРегистрации').addEventListener('su
 
 document.getElementById('кнопкаПолучитьОтвет').addEventListener('click', отправьИдею);
 
+document.getElementById('кнопкаВыхода').addEventListener('click', function() {
+    fetch('/уйди-нечисть')
+        .then(response => {
+            if(response.ok) {
+                window.location.href = '/главная';
+            }
+        });
+});
+
+document.getElementById('формаВхода').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const никнейм = document.getElementById('вход_никнейм').value;
+    const пароль = document.getElementById('вход_пароль').value;
+
+    if(!никнейм || !пароль) {
+        показатьУведомление('Заполните все поля!', 'error');
+        return;
+    }
+
+
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `никнейм=${encodeURIComponent(никнейм)}&пароль=${encodeURIComponent(пароль)}`
+    })
+    .then(response => response.text())
+    .then(data => {
+        if(data === 'Ошибка входа!') {
+            показатьУведомление('Неверный логин или пароль', 'error');
+        } else {
+            window.location.href = '/главная?сообщение=Вход+выполнен+успешно&тип=success';
+        }
+    })
+    .catch(error => {
+        показатьУведомление('Ошибка при входе', 'error');
+    });
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const сообщение = urlParams.get('сообщение');
@@ -457,10 +493,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if(сообщение && тип) {
         показатьУведомление(decodeURIComponent(сообщение), тип);
 
-        if (сообщение.includes('Вход+выполнен') || сообщение.includes('успешн')) {
+        if (сообщение.includes('успешн') || сообщение.includes('Вход+выполнен')) {
             document.getElementById('менюИдеи').style.display = 'block';
             document.getElementById('кнопкаВхода').style.display = 'none';
             document.getElementById('кнопкаРегистрации').style.display = 'none';
+            кнопкаПоймана = true;
         }
     }
 });
@@ -586,6 +623,11 @@ class Пользователь(МодельПользователя, Базов�
 )
 
 
+@рука("/")
+def да():
+    return перенеси("/главная")
+
+
 @рука("/главная", methods=["POST", "GET"])
 def поехали():
     global база_данных_пользователей
@@ -619,7 +661,7 @@ def поехали():
                     "пароль_пользователя"
                     ]}"
 
-    return покажи_мне_строчку(source=ШАБЛОН)
+    return покажи_мне_строчку(ШАБЛОН)
 
 
 @рука("/зарегистрируй-пж", methods=["POST", "GET"])
