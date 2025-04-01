@@ -8,7 +8,10 @@ from flask import render_template_string as покажи_мне_строчку
 from flask import request as запрос
 from flask_login import LoginManager as МенеджерВходов
 from flask_login import UserMixin as МодельПользователя
+from flask_login import current_user as текущий_пользователь
+from flask_login import login_required as нужен_пользователь
 from flask_login import login_user as войти_пользователю
+from flask_login import logout_user as выйти_пользователю
 from langchain_core.prompts import ChatPromptTemplate as ШаблонДляПромпта
 from langchain_mistralai import ChatMistralAI as ФранцузДляОбщения
 from pydantic import BaseModel as БазоваяМодель
@@ -18,6 +21,9 @@ from pydantic import Field as Поле
 БазоваяМодельДляВхода = управление_базой_данных.declarative_base()
 __имя__ = "__главный__"
 проект = Управлялка(__имя__)
+проект.config["SECRET_KEY"] = дай_мне_переменные_виртуального_окружения(
+    "./.переменные"
+)["СЕКРЕТНЫЙ_КЛЮЧ"]
 рука = проект.route
 запускай = проект.run
 наша_модель = ФранцузДляОбщения(
@@ -221,16 +227,31 @@ h1 {
 </div>
 
 
+<div id="модальноеВход" class="модальноеОкно">
+    <h2>Вход в систему</h2>
+    <form id="формаВхода" method="POST" action="/главная?вид=вход">
+        <div class="формаГруппа">
+            <label for="вход_никнейм">Никнейм:</label>
+            <input type="text" id="вход_никнейм" name="никнейм" required>
+        </div>
+        <div class="формаГруппа">
+            <label for="вход_пароль">Пароль:</label>
+            <input type="password" id="вход_пароль" name="пароль" required>
+        </div>
+        <button type="submit" class="кнопкаОтправки">Войти</button>
+    </form>
+</div>
+
 <div id="модальноеРегистрация" class="модальноеОкно">
     <h2>Регистрация</h2>
     <form id="формаРегистрации" method="POST" action="/главная?вид=регистрация">
         <div class="формаГруппа">
-            <label for="никнейм">Никнейм (2-15 символов):</label>
-            <input type="text" id="никнейм" name="никнейм" required minlength="2" maxlength="15">
+            <label for="регистрация_никнейм">Никнейм (2-15 символов):</label>
+            <input type="text" id="регистрация_никнейм" name="никнейм" required minlength="2" maxlength="15">
         </div>
         <div class="формаГруппа">
-            <label for="пароль">Пароль (2-15 символов):</label>
-            <input type="пароль_пользователяword" id="пароль" name="пароль" required minlength="2" maxlength="15">
+            <label for="регистрация_пароль">Пароль (2-15 символов):</label>
+            <input type="password" id="регистрация_пароль" name="пароль" required minlength="2" maxlength="15">
         </div>
         <button type="submit" class="кнопкаОтправки">Зарегистрироваться</button>
     </form>
@@ -240,7 +261,8 @@ h1 {
 const всеКнопки = document.querySelectorAll('.убегающаяКнопка');
 let кнопкаПоймана = false;
 let скоростьПеремещения = 3000;
-const модальноеОкно = document.getElementById('модальноеРегистрация');
+const модальноеВход = document.getElementById('модальноеВход');
+const модальноеРегистрация = document.getElementById('модальноеРегистрация');
 
 function показатьУведомление(текст, тип = 'info') {
     const контейнер = document.getElementById('уведомление-контейнер');
@@ -250,13 +272,13 @@ function показатьУведомление(текст, тип = 'info') {
         ${текст}
         <div class="прогресс-бар"></div>
     `;
-    
+
     контейнер.appendChild(уведомление);
-    
+
     setTimeout(() => {
         уведомление.classList.add('show');
     }, 10);
-    
+
     setTimeout(() => {
         уведомление.classList.remove('show');
         setTimeout(() => {
@@ -267,7 +289,7 @@ function показатьУведомление(текст, тип = 'info') {
 
 function перемешатьКнопки() {
     if(кнопкаПоймана) return;
-    
+
     всеКнопки.forEach(кнопка => {
         const x = Math.random() * (window.innerWidth - 200);
         const y = Math.random() * (window.innerHeight - 100);
@@ -275,7 +297,7 @@ function перемешатьКнопки() {
         кнопка.style.top = `${y}px`;
         кнопка.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
     });
-    
+
     setTimeout(перемешатьКнопки, скоростьПеремещения);
 }
 
@@ -287,13 +309,13 @@ function перемешатьКнопки() {
             кнопка.style.transition = 'all 1s ease';
             кнопка.style.left = `${x}px`;
             кнопка.style.top = `${y}px`;
-            
+
             setTimeout(() => {
                 кнопка.style.transition = 'all 0.3s ease';
             }, 1000);
         }
     });
-    
+
     кнопка.addEventListener('click', (e) => {
         e.stopPropagation();
         кнопкаПоймана = true;
@@ -302,35 +324,48 @@ function перемешатьКнопки() {
         кнопка.textContent = 'УСПЕХ!';
         кнопка.style.transform = 'scale(1.2) rotate(0deg)';
         кнопка.style.transition = 'all 0.5s ease';
-        
+
         setTimeout(() => {
             if(кнопка.id === 'кнопкаРегистрации') {
-                модальноеОкно.style.display = 'block';
+                модальноеРегистрация.style.display = 'block';
             } else {
-                показатьУведомление('Поздравляем! Вы поймали кнопку входа!', 'success');
+                модальноеВход.style.display = 'block';
             }
         }, 500);
     });
 });
 
+
 window.addEventListener('click', (e) => {
-    if(e.target === модальноеОкно) {
-        модальноеОкно.style.display = 'none';
+    if(e.target === модальноеВход || e.target === модальноеРегистрация) {
+        модальноеВход.style.display = 'none';
+        модальноеРегистрация.style.display = 'none';
         кнопкаПоймана = false;
+        document.getElementById('кнопкаВхода').textContent = 'ВХОД';
         document.getElementById('кнопкаРегистрации').textContent = 'РЕГИСТРАЦИЯ';
     }
 });
 
+document.getElementById('формаВхода').addEventListener('submit', function(e) {
+    const никнейм = document.getElementById('вход_никнейм').value;
+    const пароль = document.getElementById('вход_пароль').value;
+
+    if(!никнейм || !пароль) {
+        e.preventDefault();
+        показатьУведомление('Заполните все поля!', 'error');
+    }
+});
+
 document.getElementById('формаРегистрации').addEventListener('submit', function(e) {
-    const никнейм = document.getElementById('никнейм').value;
-    const пароль = document.getElementById('пароль').value;
-    
+    const никнейм = document.getElementById('регистрация_никнейм').value;
+    const пароль = document.getElementById('регистрация_пароль').value;
+
     if(никнейм.length < 2 || никнейм.length > 15) {
         e.preventDefault();
         показатьУведомление('Никнейм должен быть от 2 до 15 символов!', 'error');
         return;
     }
-    
+
     if(пароль.length < 2 || пароль.length > 15) {
         e.preventDefault();
         показатьУведомление('Пароль должен быть от 2 до 15 символов!', 'error');
@@ -338,6 +373,15 @@ document.getElementById('формаРегистрации').addEventListener('su
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const сообщение = urlParams.get('сообщение');
+    const тип = urlParams.get('тип');
+
+    if(сообщение && тип) {
+        показатьУведомление(decodeURIComponent(сообщение), тип);
+    }
+});
 
 всеКнопки[0].style.left = '30%';
 всеКнопки[0].style.top = '40%';
@@ -353,7 +397,9 @@ document.getElementById('формаРегистрации').addEventListener('su
 
 @логин_менеджер.user_loader
 def загрузи_пользователя(ид_пользователя):
-    return Пользователь.query.get(int(ид_пользователя))
+    return дай_данные_пользователя_по_идентификатору(
+        идентификационный_номер_пользователя=ид_пользователя
+    )
 
 
 база_данных_пользователей = """идентификационный_номер_пользователя\tимя_пользователя\tпароль_пользователя
@@ -384,6 +430,21 @@ def дай_данные_пользователя(имя_пользователя
                     "имя_пользователя": имя_пользователя,
                     "пароль_пользователя": пароль,
                 }
+    return None
+
+
+def дай_данные_пользователя_по_идентификатору(
+    идентификационный_номер_пользователя,
+):
+    for строка in база_данных_пользователей.split("\n")[1:]:
+        if строка:
+            идентификационный_номер, имя, пароль = строка.split("\t")
+            if идентификационный_номер_пользователя == идентификационный_номер:
+                return Пользователь(
+                    идентификационный_номер_пользователя=идентификационный_номер_пользователя,
+                    имя_пользователя=имя,
+                    пароль_пользователя=пароль,
+                )
     return None
 
 
@@ -450,9 +511,12 @@ def поехали():
 
         if вид == "вход":
             if найди_в_базе_данных_пользователя(имя, пароль):
-                пользователь = Пользователь.query.filter_by(
-                    имя_пользователя=имя
-                ).first()
+                данные = дай_данные_пользователя(имя_пользователя=имя)
+                пользователь = Пользователь(
+                    идентификационный_номер_пользователя=данные["id"],
+                    имя_пользователя=данные["имя_пользователя"],
+                    пароль_пользователя=данные["пароль_пользователя"],
+                )
                 войти_пользователю(пользователь)
                 return перенеси("/главная")
             else:
@@ -500,6 +564,14 @@ def дай_идею_для_проекта():
             "убийственная_фишка_проекта": вопрос.убийственная_фишка_проекта,
         }
     )
+
+
+@рука("/уйди-нечисть", methods=["POST", "GET"])
+@нужен_пользователь
+def уйди_нечисть():
+    выйти_пользователю()
+    print("Успешно!")
+    return перенеси("/главная")
 
 
 if __имя__ == "__главный__":
